@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎆 星空烟花模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(255, 20, 147, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at 20% 80%, rgba(0, 191, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        /* 欢迎界面样式 */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95) 0%, rgba(26, 26, 46, 0.95) 50%, rgba(83, 52, 131, 0.95) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease-out;
+            backdrop-filter: blur(20px);
+        }
+        
+        .welcome-content {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 25px;
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: welcomeFloat 3s ease-in-out infinite;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes welcomeFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .welcome-title {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8)); }
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+        
+        .icon-heart { background: linear-gradient(45deg, #ff6b6b, #ff8e8e); }
+        .icon-star { background: linear-gradient(45deg, #ffa500, #ffcc00); }
+        .icon-settings { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
+        
+        .start-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* 底部控制面板样式 */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            color: white;
+            justify-content: center;
+            flex-wrap: nowrap;
+            max-width: 95vw;
+        }
+        
+        .controls::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.1), rgba(255, 20, 147, 0.1), rgba(0, 191, 255, 0.1));
+            border-radius: 60px;
+            z-index: -1;
+        }
+        
+        .control-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .control-label {
+            font-size: 12px;
+            opacity: 0.8;
+            text-align: center;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 50%, #f093fb 100%);
+        }
+        
+        button:active {
+            transform: translateY(-1px) scale(1.02);
+            transition: all 0.1s ease;
+        }
+        
+        button:disabled {
+            background: linear-gradient(45deg, #666, #888);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        input[type="range"] {
+            width: 80px;
+            height: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+            border-radius: 10px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .value-display {
+            background: rgba(255, 165, 0, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: #ffa500;
+            font-size: 11px;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        /* 文字特效 */
+        .floating-text {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 50;
+            animation: floatUp 3s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.2);
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .control-section {
+                justify-content: center;
+            }
+            
+            .welcome-title {
+                font-size: 2.5em;
+            }
+            
+            .welcome-content {
+                margin: 20px;
+                padding: 30px;
+            }
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .text-input-group {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .text-input-group input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            outline: none;
+            width: 150px;
+            font-size: 14px;
+        }
+        
+        .text-input-group input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .text-input-group button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .text-input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 欢迎界面 -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-content">
+            <h1 class="welcome-title">星空烟花</h1>
+            <p class="welcome-subtitle">用绚丽的烟花表达你的情感</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon icon-heart">💖</div>
+                    <div>
+                        <strong>点击画布任意位置发射烟花</strong><br>
+                        <small>或使用底部控制面板</small>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon icon-star">⭐</div>
+                    <div>
+                        <strong>特色功能</strong><br>
+                        <small>520爱心烟花、自定义文字烟花、截图保存等</small>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon icon-settings">⚙️</div>
+                    <div>
+                        <strong>自定义体验</strong><br>
+                        <small>调整烟花强度、爆炸高度和音量</small>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="start-button" onclick="startExperience()">🚀 开始烟花表演</button>
+        </div>
+    </div>
+    
+    <canvas id="fireworksCanvas"></canvas>
+    
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 底部控制面板 -->
+    <div class="controls" id="controls" style="display: none;">
+        <div class="control-section">
+            <button id="pauseBtn" onclick="pauseFireworks()">⏸️ 停止烟花</button>
+            <button onclick="clearFireworks()">🧹 清空</button>
+            <button onclick="takeScreenshot()">📷 保存烟花</button>
+        </div>
+        
+        <div class="control-section">
+            <div class="control-group">
+                <div class="control-label">烟花强度:</div>
+                <div class="slider-container">
+                    <input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensity(this.value)">
+                    <span class="value-display" id="intensityValue">5</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div class="control-label">爆炸高度:</div>
+                <div class="slider-container">
+                    <input type="range" id="height" min="0.3" max="0.8" step="0.1" value="0.6" oninput="updateHeight(this.value)">
+                    <span class="value-display" id="heightValue">0.6</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div class="control-label">音量:</div>
+                <div class="slider-container">
+                    <input type="range" id="volume" min="0" max="100" value="30" oninput="updateVolume(this.value)">
+                    <span class="value-display" id="volumeValue">30</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <button onclick="createHeartFirework()">💖 520爱心烟花</button>
+            <div class="text-input-group">
+                <input type="text" id="customText" placeholder="输入想要显示的文字" maxlength="20" style="padding: 8px; border-radius: 5px; border: none; margin-right: 10px; width: 150px;">
+                <button onclick="createTextFirework()">✨ 发射文字烟花</button>
+            </div>
+            <button onclick="toggleFullscreen()">🔍 全屏</button>
+        </div>
+    </div>
+
+    <script>
+        // 🎵 音频数据 - 使用简短的正弦波生成的base64音频
+        const LAUNCH_SOUND = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+        const EXPLOSION_SOUND = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+        
+        // 🎨 Canvas设置
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 📏 调整Canvas大小
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // 🌟 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.style.position = 'absolute';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.backgroundColor = 'white';
+                star.style.borderRadius = '50%';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite`;
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // ✨ 添加星星闪烁动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes twinkle {
+                0%, 100% { opacity: 0.2; }
+                50% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        createStars();
+        
+        // 🎆 烟花系统
+        let fireworks = [];
+        let particles = [];
+        let isShowRunning = false;
+        let showInterval;
+        let settings = {
+            intensity: 5,
+            explosionHeight: 0.6
+        };
+        
+        // 🎵 音频播放函数
+        function playSound(soundData) {
+            try {
+                const audio = new Audio(soundData);
+                audio.volume = currentVolume;
+                audio.play().catch(e => console.log('音频播放失败:', e));
+            } catch (e) {
+                console.log('音频创建失败:', e);
+            }
+        }
+        
+        // 🎨 烟花类
+        class Firework {
+            /**
+             * 创建烟花对象
+             * @param {number} x - 起始X坐标
+             * @param {number} y - 起始Y坐标
+             * @param {number} targetY - 目标Y坐标
+             */
+            constructor(x, y, targetY) {
+                this.x = x;
+                this.y = y;
+                this.startY = y;
+                this.targetY = targetY;
+                this.speed = 2;
+                this.acceleration = 0.02;
+                this.brightness = Math.random() * 50 + 50;
+                this.targetRadius = 1;
+                this.exploded = false;
+                this.hue = Math.random() * 360;
+            }
+            
+            /**
+             * 更新烟花状态
+             */
+            update() {
+                if (!this.exploded) {
+                    this.speed += this.acceleration;
+                    this.y -= this.speed;
+                    
+                    if (this.y <= this.targetY) {
+                        this.explode();
+                    }
+                }
+            }
+            
+            /**
+             * 绘制烟花
+             */
+            draw() {
+                if (!this.exploded) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.targetRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            
+            /**
+             * 烟花爆炸效果
+             */
+            explode() {
+                this.exploded = true;
+                playSound(EXPLOSION_SOUND);
+                
+                const particleCount = settings.intensity * 10;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(this.x, this.y, this.hue));
+                }
+            }
+        }
+        
+        // ✨ 粒子类
+        class Particle {
+            /**
+             * 创建粒子对象
+             * @param {number} x - X坐标
+             * @param {number} y - Y坐标
+             * @param {number} hue - 色调
+             */
+            constructor(x, y, hue) {
+                this.x = x;
+                this.y = y;
+                this.coordinates = [];
+                this.coordinateCount = 5;
+                
+                // 填充坐标历史
+                for (let i = 0; i < this.coordinateCount; i++) {
+                    this.coordinates.push([this.x, this.y]);
+                }
+                
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = Math.random() * 10 + 1;
+                this.friction = 0.95;
+                this.gravity = 1;
+                this.hue = hue + Math.random() * 20 - 10;
+                this.brightness = Math.random() * 50 + 50;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            
+            /**
+             * 更新粒子状态
+             */
+            update() {
+                this.coordinates.pop();
+                this.coordinates.unshift([this.x, this.y]);
+                
+                this.speed *= this.friction;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed + this.gravity;
+                this.alpha -= this.decay;
+                
+                if (this.alpha <= this.decay) {
+                    return false;
+                }
+                return true;
+            }
+            
+            /**
+             * 绘制粒子
+             */
+            draw() {
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], 
+                          this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+        
+        /**
+         * 创建烟花
+         * @param {number} x - X坐标
+         * @param {number} y - Y坐标（可选）
+         */
+        function createFirework(x, y) {
+            const startY = canvas.height;
+            const targetY = y || canvas.height * settings.explosionHeight;
+            fireworks.push(new Firework(x, startY, targetY));
+            playSound(LAUNCH_SOUND);
+        }
+        
+        /**
+         * 动画循环
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // 清除画布，保留轨迹效果
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+            
+            // 更新和绘制烟花
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                fireworks[i].update();
+                fireworks[i].draw();
+                
+                if (fireworks[i].exploded) {
+                    fireworks.splice(i, 1);
+                }
+            }
+            
+            // 更新和绘制粒子
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (!particles[i].update()) {
+                    particles.splice(i, 1);
+                } else {
+                    particles[i].draw();
+                }
+            }
+        }
+        
+        /**
+         * 开始烟花表演
+         */
+        function startFireworkShow() {
+            if (isShowRunning || isPaused) return;
+            
+            isShowRunning = true;
+            
+            showInterval = setInterval(() => {
+                if (!isPaused) {
+                    const x = Math.random() * canvas.width;
+                    createFirework(x);
+                }
+            }, 1000 / settings.intensity);
+        }
+        
+        // 暂停/恢复烟花
+        function pauseFireworks() {
+            const pauseBtn = document.getElementById('pauseBtn');
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = '⏸️ 停止烟花';
+                startFireworkShow();
+            } else {
+                isPaused = true;
+                pauseBtn.textContent = '▶️ 继续烟花';
+                if (showInterval) {
+                    clearInterval(showInterval);
+                    isShowRunning = false;
+                }
+            }
+        }
+        
+        /**
+         * 清除所有烟花
+         */
+        function clearFireworks() {
+            fireworks = [];
+            particles = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // 创建爱心烟花
+         function createHeartFirework() {
+             const centerX = canvas.width / 2;
+             const centerY = canvas.height * 0.4;
+             
+             // 先显示"520"文字 - 增大尺寸并延长显示时间
+             const show520Text = () => {
+                 ctx.save();
+                 ctx.font = 'bold 120px Arial'; // 增大字体尺寸
+                 ctx.fillStyle = '#FF69B4';
+                 ctx.textAlign = 'center';
+                 ctx.shadowColor = '#FFF';
+                 ctx.shadowBlur = 25; // 增强发光效果
+                 ctx.strokeStyle = '#FFF';
+                 ctx.lineWidth = 4; // 增加描边宽度
+                 ctx.strokeText('520', centerX, centerY - 50);
+                 ctx.fillText('520', centerX, centerY - 50);
+                 ctx.restore();
+             };
+             
+             // 延长文字显示时间 - 每100ms重绘一次，持续3秒
+             let textDisplayCount = 0;
+             const textInterval = setInterval(() => {
+                 show520Text();
+                 textDisplayCount++;
+                 if (textDisplayCount >= 30) { // 3秒 = 30次 * 100ms
+                     clearInterval(textInterval);
+                 }
+             }, 100);
+             
+             // 立即显示第一次
+             setTimeout(show520Text, 100);
+             
+             // 创建爱心形状的粒子
+             for (let i = 0; i < 80; i++) {
+                 const angle = (i / 80) * Math.PI * 2;
+                 const t = angle;
+                 
+                 // 爱心方程
+                 const x = 16 * Math.pow(Math.sin(t), 3);
+                 const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                 
+                 const particle = new Particle(
+                     centerX,
+                     centerY + 30,
+                     x * 0.6,
+                     y * 0.6,
+                     340 + Math.random() * 40
+                 );
+                 particles.push(particle);
+             }
+             
+             // 添加额外的粉色粒子效果
+             for (let i = 0; i < 50; i++) {
+                 const angle = Math.random() * Math.PI * 2;
+                 const speed = Math.random() * 3 + 1;
+                 const vx = Math.cos(angle) * speed;
+                 const vy = Math.sin(angle) * speed;
+                 
+                 const particle = new Particle(
+                     centerX,
+                     centerY,
+                     vx,
+                     vy,
+                     320 + Math.random() * 60
+                 );
+                 particles.push(particle);
+             }
+             
+             // 播放爆炸音效
+             playSound(EXPLOSION_SOUND);
+         }
+        
+
+        
+        // 创建文字烟花
+         function createTextFirework() {
+             const text = document.getElementById('customText').value.trim();
+             if (!text) return;
+             
+             const centerX = canvas.width / 2;
+             const centerY = canvas.height * 0.4;
+             
+             // 创建超大文字效果 - 150px字体，居中屏幕显示，持续5秒
+             const showCustomText = () => {
+                 ctx.save();
+                 ctx.font = 'bold 150px Arial'; // 超大字体尺寸
+                 ctx.fillStyle = '#FFD700';
+                 ctx.textAlign = 'center';
+                 ctx.textBaseline = 'middle'; // 垂直居中
+                 ctx.shadowColor = '#FFF';
+                 ctx.shadowBlur = 30; // 更强发光效果
+                 ctx.strokeStyle = '#FFF';
+                 ctx.lineWidth = 5; // 更粗描边
+                 
+                 // 完美居中屏幕显示
+                 const screenCenterX = canvas.width / 2;
+                 const screenCenterY = canvas.height / 2;
+                 
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 ctx.fillText(text, screenCenterX, screenCenterY);
+                 ctx.restore();
+             };
+             
+             // 延长文字显示时间 - 每100ms重绘一次，持续5秒
+             let customTextDisplayCount = 0;
+             const customTextInterval = setInterval(() => {
+                 showCustomText();
+                 customTextDisplayCount++;
+                 if (customTextDisplayCount >= 50) { // 5秒 = 50次 * 100ms
+                     clearInterval(customTextInterval);
+                 }
+             }, 100);
+             
+             // 立即显示第一次
+             setTimeout(showCustomText, 100);
+             
+             // 创建围绕文字的粒子效果
+             for (let i = 0; i < 100; i++) {
+                 const angle = Math.random() * Math.PI * 2;
+                 const speed = Math.random() * 4 + 2;
+                 const vx = Math.cos(angle) * speed;
+                 const vy = Math.sin(angle) * speed;
+                 
+                 const particle = new Particle(
+                     centerX,
+                     centerY,
+                     vx,
+                     vy,
+                     Math.random() * 360
+                 );
+                 particles.push(particle);
+             }
+             
+             // 清空输入框
+             document.getElementById('customText').value = '';
+             playSound(EXPLOSION_SOUND);
+         }
+        
+        // 截图保存功能
+        function takeScreenshot() {
+            // 保存当前画布内容
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // 临时设置黑色背景
+            ctx.save();
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 重新绘制保存的内容
+            ctx.putImageData(imageData, 0, 0);
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = `烟花_${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            
+            // 恢复原始画布状态
+            ctx.restore();
+        }
+        
+        // 全屏切换
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // 全局变量
+        let currentVolume = 0.3;
+        let isPaused = false;
+        
+        // 开始体验函数
+        function startExperience() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('controls').style.display = 'flex';
+            
+            // 添加进入动画效果
+            const canvas = document.getElementById('fireworksCanvas');
+            canvas.style.opacity = '0';
+            canvas.style.transition = 'opacity 1s ease-in';
+            setTimeout(() => {
+                canvas.style.opacity = '1';
+            }, 100);
+            
+            // 自动开始烟花表演
+            startFireworkShow();
+        }
+        
+        /**
+         * 更新烟花强度
+         * @param {string} value - 强度值
+         */
+        function updateIntensity(value) {
+            settings.intensity = parseInt(value);
+            document.getElementById('intensityValue').textContent = value;
+        }
+        
+        /**
+         * 更新爆炸高度
+         * @param {string} value - 高度值
+         */
+        function updateHeight(value) {
+            settings.explosionHeight = parseFloat(value);
+            document.getElementById('heightValue').textContent = value;
+        }
+        
+        // 更新音量
+        function updateVolume(value) {
+            currentVolume = parseInt(value) / 100;
+            document.getElementById('volumeValue').textContent = value;
+        }
+        
+        // 🖱️ 鼠标点击事件
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            createFirework(x, y);
+        });
+        
+        // ⌨️ 键盘事件监听
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const textInput = document.getElementById('customText');
+                if (document.activeElement === textInput && textInput.value.trim()) {
+                    createTextFirework();
+                }
+            }
+        });
+        
+        // 🎬 启动动画
+        animate();
+        
+        // 🎉 欢迎消息
+        console.log('🎆 星空烟花模拟器已启动！点击画布或使用控制面板来创建美丽的烟花！');
+    </script>
+</body>
+</html>
