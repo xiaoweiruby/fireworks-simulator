@@ -160,15 +160,15 @@
         /* 底部控制面板样式 */
         .controls {
             position: fixed;
-            bottom: 20px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 20px;
+            gap: 4px;
             align-items: center;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
-            padding: 15px 25px;
-            border-radius: 50px;
+            padding: 4px;
+            border-radius: 16px;
             backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             z-index: 1000;
@@ -196,32 +196,32 @@
         .control-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 3px;
         }
         
         .control-group {
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 6px;
+            gap: 2px;
         }
         
         .control-label {
-            font-size: 12px;
+            font-size: 8px;
             opacity: 0.8;
             text-align: center;
             white-space: nowrap;
-            min-width: 60px;
+            min-width: 35px;
         }
         
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             border: none;
             color: white;
-            padding: 10px 16px;
-            border-radius: 25px;
+            padding: 2px 6px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 7px;
             font-weight: 600;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3),
@@ -271,14 +271,14 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 8px;
+            gap: 2px;
         }
         
         input[type="range"] {
-            width: 80px;
-            height: 6px;
+            width: 50px;
+            height: 4px;
             background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
-            border-radius: 10px;
+            border-radius: 6px;
             outline: none;
             appearance: none;
             cursor: pointer;
@@ -287,8 +287,8 @@
         
         input[type="range"]::-webkit-slider-thumb {
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 12px;
+            height: 12px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             cursor: pointer;
@@ -304,8 +304,8 @@
         }
         
         input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
+            width: 12px;
+            height: 12px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             cursor: pointer;
@@ -315,12 +315,12 @@
         
         .value-display {
             background: rgba(255, 165, 0, 0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
+            padding: 1px 4px;
+            border-radius: 8px;
             font-weight: bold;
             color: #ffa500;
-            font-size: 11px;
-            min-width: 25px;
+            font-size: 8px;
+            min-width: 16px;
             text-align: center;
         }
         
@@ -385,10 +385,10 @@
         .text-input-group {
             display: flex;
             align-items: center;
-            margin: 0 10px;
+            margin: 0 1px;
             background: rgba(255,255,255,0.1);
-            border-radius: 25px;
-            padding: 5px;
+            border-radius: 12px;
+            padding: 1px;
             backdrop-filter: blur(10px);
         }
         
@@ -396,11 +396,11 @@
             background: transparent;
             border: none;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 2px 4px;
+            border-radius: 10px;
             outline: none;
-            width: 150px;
-            font-size: 14px;
+            width: 60px;
+            font-size: 7px;
         }
         
         .text-input-group input::placeholder {
@@ -411,11 +411,11 @@
             background: linear-gradient(45deg, #ff6b6b, #feca57);
             border: none;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 2px 4px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
+            font-size: 6px;
+            margin-left: 1px;
             transition: all 0.3s ease;
         }
         
@@ -431,6 +431,12 @@
     </style>
 </head>
 <body>
+    <!-- 背景音乐 -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="./背景音乐.m4a" type="audio/mp4">
+        您的浏览器不支持音频播放。
+    </audio>
+    
     <!-- 欢迎界面 -->
     <div class="welcome-screen" id="welcomeScreen">
         <div class="welcome-content">
@@ -504,6 +510,18 @@
                     <span class="value-display" id="volumeValue">30</span>
                 </div>
             </div>
+            
+            <div class="control-group">
+                <div class="control-label">背景音乐:</div>
+                <div class="slider-container">
+                    <input type="range" id="musicVolume" min="0" max="100" value="50" oninput="updateMusicVolume(this.value)">
+                    <span class="value-display" id="musicVolumeValue">50</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <button id="musicToggle" onclick="toggleBackgroundMusic()">🎵 播放音乐</button>
         </div>
         
         <div class="control-section">
@@ -574,15 +592,183 @@
             explosionHeight: 0.6
         };
         
-        // 🎵 音频播放函数
-        function playSound(soundData) {
-            try {
-                const audio = new Audio(soundData);
-                audio.volume = currentVolume;
-                audio.play().catch(e => console.log('音频播放失败:', e));
-            } catch (e) {
-                console.log('音频创建失败:', e);
+        // 🎵 音频管理器 - 确保背景音乐和音效独立运行
+        class AudioManager {
+            constructor() {
+                this.backgroundMusic = null;
+                this.isMusicPlaying = false;
+                this.musicVolume = 0.5;
+                this.effectVolume = 0.3;
+                this.effectAudioPool = []; // 音效对象池，避免创建过多Audio对象
+                this.maxPoolSize = 10;
+                this.initAudioPool();
             }
+            
+            /**
+             * 初始化音效对象池
+             */
+            initAudioPool() {
+                for (let i = 0; i < this.maxPoolSize; i++) {
+                    this.effectAudioPool.push({
+                        audio: null,
+                        inUse: false
+                    });
+                }
+            }
+            
+            /**
+             * 播放音效（独立于背景音乐）
+             * @param {string} soundData - 音效数据
+             */
+            playEffect(soundData) {
+                try {
+                    // 从对象池中获取可用的音频对象
+                    let audioSlot = this.effectAudioPool.find(slot => !slot.inUse);
+                    
+                    if (!audioSlot) {
+                        // 如果池满了，使用第一个对象（覆盖最旧的音效）
+                        audioSlot = this.effectAudioPool[0];
+                        if (audioSlot.audio) {
+                            audioSlot.audio.pause();
+                            audioSlot.audio.currentTime = 0;
+                        }
+                    }
+                    
+                    // 创建新的音频对象或重用现有对象
+                    if (!audioSlot.audio) {
+                        audioSlot.audio = new Audio(soundData);
+                    } else {
+                        audioSlot.audio.src = soundData;
+                    }
+                    
+                    audioSlot.audio.volume = this.effectVolume;
+                    audioSlot.inUse = true;
+                    
+                    // 播放音效
+                    audioSlot.audio.play().then(() => {
+                        // 播放成功
+                    }).catch(e => {
+                        console.log('音效播放失败:', e);
+                        audioSlot.inUse = false;
+                    });
+                    
+                    // 音效播放结束后释放对象
+                    audioSlot.audio.addEventListener('ended', () => {
+                        audioSlot.inUse = false;
+                    }, { once: true });
+                    
+                } catch (e) {
+                    console.log('音效创建失败:', e);
+                }
+            }
+            
+            /**
+             * 设置音效音量
+             * @param {number} volume - 音量值 (0-1)
+             */
+            setEffectVolume(volume) {
+                this.effectVolume = volume;
+                // 更新所有正在使用的音效音量
+                this.effectAudioPool.forEach(slot => {
+                    if (slot.audio && slot.inUse) {
+                        slot.audio.volume = volume;
+                    }
+                });
+            }
+            
+            /**
+             * 初始化背景音乐
+             */
+            initBackgroundMusic() {
+                this.backgroundMusic = document.getElementById('backgroundMusic');
+                if (this.backgroundMusic) {
+                    this.backgroundMusic.volume = this.musicVolume;
+                    
+                    // 音频加载完成事件
+                    this.backgroundMusic.addEventListener('loadeddata', () => {
+                        console.log('🎵 背景音乐加载完成');
+                    });
+                    
+                    // 音频播放错误事件
+                    this.backgroundMusic.addEventListener('error', (e) => {
+                        console.error('❌ 背景音乐加载失败:', e);
+                    });
+                    
+                    // 音频播放结束事件（循环播放）
+                    this.backgroundMusic.addEventListener('ended', () => {
+                        if (this.isMusicPlaying) {
+                            this.backgroundMusic.currentTime = 0;
+                            this.backgroundMusic.play();
+                        }
+                    });
+                }
+            }
+            
+            /**
+             * 播放/暂停背景音乐
+             */
+            toggleBackgroundMusic() {
+                if (!this.backgroundMusic) {
+                    this.initBackgroundMusic();
+                    return;
+                }
+                
+                const musicBtn = document.getElementById('musicToggle');
+                
+                if (this.isMusicPlaying) {
+                    // 暂停音乐
+                    this.backgroundMusic.pause();
+                    this.isMusicPlaying = false;
+                    musicBtn.textContent = '🎵 播放音乐';
+                    console.log('⏸️ 背景音乐已暂停');
+                } else {
+                    // 播放音乐
+                    this.backgroundMusic.play().then(() => {
+                        this.isMusicPlaying = true;
+                        musicBtn.textContent = '🔇 停止音乐';
+                        console.log('▶️ 背景音乐开始播放');
+                    }).catch((error) => {
+                        console.error('❌ 音乐播放失败:', error);
+                    });
+                }
+            }
+            
+            /**
+             * 设置背景音乐音量
+             * @param {number} volume - 音量值 (0-1)
+             */
+            setMusicVolume(volume) {
+                this.musicVolume = volume;
+                if (this.backgroundMusic) {
+                    this.backgroundMusic.volume = volume;
+                }
+            }
+            
+            /**
+             * 自动播放背景音乐
+             */
+            autoPlayMusic() {
+                if (!this.isMusicPlaying && this.backgroundMusic) {
+                    this.backgroundMusic.play().then(() => {
+                        this.isMusicPlaying = true;
+                        const musicBtn = document.getElementById('musicToggle');
+                        if (musicBtn) {
+                            musicBtn.textContent = '🔇 停止音乐';
+                        }
+                        console.log('🎵 背景音乐自动播放成功');
+                    }).catch((error) => {
+                        console.log('🎵 背景音乐自动播放失败:', error);
+                    });
+                }
+            }
+        }
+        
+        // 创建全局音频管理器实例
+        const audioManager = new AudioManager();
+        
+        // 🎵 音频播放函数（使用音频管理器）
+        function playSound(soundData) {
+            audioManager.playEffect(soundData);
         }
         
         // 🎨 烟花类
@@ -803,18 +989,99 @@
              const centerX = canvas.width / 2;
              const centerY = canvas.height * 0.4;
              
-             // 先显示"520"文字 - 增大尺寸并延长显示时间
+             // 先显示"520"文字 - 终极超清晰渲染效果
              const show520Text = () => {
                  ctx.save();
-                 ctx.font = 'bold 120px Arial'; // 增大字体尺寸
-                 ctx.fillStyle = '#FF69B4';
+                 
+                 // 设置最高质量字体渲染
+                 ctx.font = 'bold 130px "Arial Black", "Helvetica", Arial, sans-serif';
                  ctx.textAlign = 'center';
-                 ctx.shadowColor = '#FFF';
-                 ctx.shadowBlur = 25; // 增强发光效果
-                 ctx.strokeStyle = '#FFF';
-                 ctx.lineWidth = 4; // 增加描边宽度
-                 ctx.strokeText('520', centerX, centerY - 50);
-                 ctx.fillText('520', centerX, centerY - 50);
+                 ctx.textBaseline = 'middle';
+                 ctx.imageSmoothingEnabled = true;
+                 ctx.imageSmoothingQuality = 'high';
+                 ctx.textRenderingOptimization = 'optimizeQuality';
+                 
+                 const textX = centerX;
+                 const textY = centerY - 50;
+                 
+                 // 移除黑色背景遮罩，保持透明背景
+                 
+                 // 第一层：超大外层光晕背景
+                 ctx.shadowColor = '#FF1493';
+                 ctx.shadowBlur = 100;
+                 ctx.fillStyle = 'rgba(255, 20, 147, 0.3)';
+                 ctx.fillText('520', textX, textY);
+                 
+                 // 第二层：大光晕
+                 ctx.shadowColor = '#FF69B4';
+                 ctx.shadowBlur = 80;
+                 ctx.fillStyle = 'rgba(255, 105, 180, 0.4)';
+                 ctx.fillText('520', textX, textY);
+                 
+                 // 第三层：中光晕
+                 ctx.shadowColor = '#FFB6C1';
+                 ctx.shadowBlur = 60;
+                 ctx.fillStyle = 'rgba(255, 182, 193, 0.6)';
+                 ctx.fillText('520', textX, textY);
+                 
+                 // 第四层：内光晕
+                 ctx.shadowColor = '#FFC0CB';
+                 ctx.shadowBlur = 40;
+                 ctx.fillStyle = 'rgba(255, 192, 203, 0.8)';
+                 ctx.fillText('520', textX, textY);
+                 
+                 // 第五层：超强外层描边（加厚）
+                 ctx.shadowBlur = 0;
+                 ctx.strokeStyle = '#FFFFFF';
+                 ctx.lineWidth = 18;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第六层：强化中层描边（加厚）
+                 ctx.strokeStyle = '#000000';
+                 ctx.lineWidth = 14;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第七层：中间过渡描边
+                 ctx.strokeStyle = '#FFFFFF';
+                 ctx.lineWidth = 10;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第八层：内层彩色描边
+                 ctx.strokeStyle = '#FF1493';
+                 ctx.lineWidth = 8;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第九层：精细描边
+                 ctx.strokeStyle = '#FF69B4';
+                 ctx.lineWidth = 4;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第十层：超精细描边
+                 ctx.strokeStyle = '#FFB6C1';
+                 ctx.lineWidth = 2;
+                 ctx.strokeText('520', textX, textY);
+                 
+                 // 第十一层：主体文字（超清晰）
+                 ctx.fillStyle = '#FF69B4';
+                 ctx.shadowColor = '#FFFFFF';
+                 ctx.shadowBlur = 8;
+                 ctx.fillText('520', textX, textY);
+                 
+                 // 第十二层：强化高光效果
+                 ctx.fillStyle = '#FFFFFF';
+                 ctx.shadowBlur = 0;
+                 ctx.globalAlpha = 0.9;
+                 ctx.fillText('520', textX - 2, textY - 2);
+                 
+                 // 第十三层：细节高光
+                 ctx.globalAlpha = 0.6;
+                 ctx.fillText('520', textX + 1, textY + 1);
+                 
+                 // 第十四层：锐化边缘
+                 ctx.globalAlpha = 0.3;
+                 ctx.fillText('520', textX - 1, textY + 1);
+                 ctx.fillText('520', textX + 1, textY - 1);
+                 
                  ctx.restore();
              };
              
@@ -881,24 +1148,100 @@
              const centerX = canvas.width / 2;
              const centerY = canvas.height * 0.4;
              
-             // 创建超大文字效果 - 150px字体，居中屏幕显示，持续5秒
+             // 创建超大文字效果 - 160px字体，居中屏幕显示，持续5秒 - 终极超清晰渲染
              const showCustomText = () => {
                  ctx.save();
-                 ctx.font = 'bold 150px Arial'; // 超大字体尺寸
-                 ctx.fillStyle = '#FFD700';
+                 
+                 // 设置最高质量字体渲染
+                 ctx.font = 'bold 160px "Arial Black", "Helvetica", Arial, sans-serif';
                  ctx.textAlign = 'center';
-                 ctx.textBaseline = 'middle'; // 垂直居中
-                 ctx.shadowColor = '#FFF';
-                 ctx.shadowBlur = 30; // 更强发光效果
-                 ctx.strokeStyle = '#FFF';
-                 ctx.lineWidth = 5; // 更粗描边
+                 ctx.textBaseline = 'middle';
+                 ctx.imageSmoothingEnabled = true;
+                 ctx.imageSmoothingQuality = 'high';
+                 ctx.textRenderingOptimization = 'optimizeQuality';
                  
                  // 完美居中屏幕显示
                  const screenCenterX = canvas.width / 2;
                  const screenCenterY = canvas.height / 2;
                  
-                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 // 移除黑色背景遮罩，保持透明背景
+                 
+                 // 第一层：超大外层光晕背景
+                 ctx.shadowColor = '#FFD700';
+                 ctx.shadowBlur = 100;
+                 ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
                  ctx.fillText(text, screenCenterX, screenCenterY);
+                 
+                 // 第二层：大光晕
+                 ctx.shadowColor = '#FFA500';
+                 ctx.shadowBlur = 80;
+                 ctx.fillStyle = 'rgba(255, 165, 0, 0.4)';
+                 ctx.fillText(text, screenCenterX, screenCenterY);
+                 
+                 // 第三层：中光晕
+                 ctx.shadowColor = '#FFFF00';
+                 ctx.shadowBlur = 60;
+                 ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
+                 ctx.fillText(text, screenCenterX, screenCenterY);
+                 
+                 // 第四层：内光晕
+                 ctx.shadowColor = '#FFB347';
+                 ctx.shadowBlur = 40;
+                 ctx.fillStyle = 'rgba(255, 179, 71, 0.8)';
+                 ctx.fillText(text, screenCenterX, screenCenterY);
+                 
+                 // 第五层：超强外层描边（加厚）
+                 ctx.shadowBlur = 0;
+                 ctx.strokeStyle = '#FFFFFF';
+                 ctx.lineWidth = 18;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第六层：强化中层描边（加厚）
+                 ctx.strokeStyle = '#000000';
+                 ctx.lineWidth = 14;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第七层：中间过渡描边
+                 ctx.strokeStyle = '#FFFFFF';
+                 ctx.lineWidth = 10;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第八层：内层彩色描边
+                 ctx.strokeStyle = '#FFD700';
+                 ctx.lineWidth = 8;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第九层：精细描边
+                 ctx.strokeStyle = '#FF8C00';
+                 ctx.lineWidth = 4;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第十层：超精细描边
+                 ctx.strokeStyle = '#FFB347';
+                 ctx.lineWidth = 2;
+                 ctx.strokeText(text, screenCenterX, screenCenterY);
+                 
+                 // 第十一层：主体文字（超清晰）
+                 ctx.fillStyle = '#FFD700';
+                 ctx.shadowColor = '#FFFFFF';
+                 ctx.shadowBlur = 8;
+                 ctx.fillText(text, screenCenterX, screenCenterY);
+                 
+                 // 第十二层：强化高光效果
+                 ctx.fillStyle = '#FFFFFF';
+                 ctx.shadowBlur = 0;
+                 ctx.globalAlpha = 0.9;
+                 ctx.fillText(text, screenCenterX - 2, screenCenterY - 2);
+                 
+                 // 第十三层：细节高光
+                 ctx.globalAlpha = 0.6;
+                 ctx.fillText(text, screenCenterX + 1, screenCenterY + 1);
+                 
+                 // 第十四层：锐化边缘
+                 ctx.globalAlpha = 0.3;
+                 ctx.fillText(text, screenCenterX - 1, screenCenterY + 1);
+                 ctx.fillText(text, screenCenterX + 1, screenCenterY - 1);
+                 
                  ctx.restore();
              };
              
@@ -925,8 +1268,6 @@
                  const particle = new Particle(
                      centerX,
                      centerY,
-                     vx,
-                     vy,
                      Math.random() * 360
                  );
                  particles.push(particle);
@@ -973,7 +1314,9 @@
         let currentVolume = 0.3;
         let isPaused = false;
         
-        // 开始体验函数
+        /**
+         * 开始体验函数 - 进入烟花模拟器并自动播放背景音乐
+         */
         function startExperience() {
             document.getElementById('welcomeScreen').style.display = 'none';
             document.getElementById('controls').style.display = 'flex';
@@ -988,6 +1331,11 @@
             
             // 自动开始烟花表演
             startFireworkShow();
+            
+            // 🎵 自动播放背景音乐（使用音频管理器）
+            setTimeout(() => {
+                audioManager.autoPlayMusic();
+            }, 500); // 延迟500ms确保音频已初始化
         }
         
         /**
@@ -1008,10 +1356,37 @@
             document.getElementById('heightValue').textContent = value;
         }
         
-        // 更新音量
+        // 更新烟花音效音量（独立于背景音乐）
         function updateVolume(value) {
-            currentVolume = parseInt(value) / 100;
+            const volume = parseInt(value) / 100;
+            audioManager.setEffectVolume(volume);
             document.getElementById('volumeValue').textContent = value;
+            console.log(`🔊 烟花音效音量设置为: ${value}%`);
+        }
+        
+        /**
+         * 初始化背景音乐（使用音频管理器）
+         */
+        function initBackgroundMusic() {
+            audioManager.initBackgroundMusic();
+        }
+        
+        /**
+         * 播放/暂停背景音乐（使用音频管理器）
+         */
+        function toggleBackgroundMusic() {
+            audioManager.toggleBackgroundMusic();
+        }
+        
+        /**
+         * 更新背景音乐音量（独立于烟花音效）
+         * @param {string} value - 音量值 (0-100)
+         */
+        function updateMusicVolume(value) {
+            const volume = parseInt(value) / 100;
+            document.getElementById('musicVolumeValue').textContent = value;
+            audioManager.setMusicVolume(volume);
+            console.log(`🔊 背景音乐音量设置为: ${value}%`);
         }
         
         // 🖱️ 鼠标点击事件
@@ -1032,11 +1407,25 @@
             }
         });
         
+        // 🎵 初始化背景音乐
+        document.addEventListener('DOMContentLoaded', () => {
+            initBackgroundMusic();
+        });
+        
+        // 如果DOM已经加载完成，立即初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBackgroundMusic);
+        } else {
+            initBackgroundMusic();
+        }
+        
         // 🎬 启动动画
         animate();
         
         // 🎉 欢迎消息
         console.log('🎆 星空烟花模拟器已启动！点击画布或使用控制面板来创建美丽的烟花！');
+        console.log('🎵 背景音乐功能已加载，点击播放按钮开始享受音乐！');
+        console.log('🔊 音频管理器已创建，支持独立音频通道管理！');
     </script>
 </body>
 </html>
